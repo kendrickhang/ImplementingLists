@@ -12,5 +12,12 @@ public class Main {
         friends.add("Ehren");
         System.out.println("Size after added one: "+friends.size());
 
+        for(int i = 0; i < 50; i++){
+            friends.add("Friend"+i);
+        }
+        System.out.println("Size after many added: "+friends.size());
+        System.out.println(friends);
+
+
     }
 }

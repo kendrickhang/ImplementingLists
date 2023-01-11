@@ -150,6 +150,16 @@ public class ArrayList<ItemType> implements List<ItemType>{
      * Removes all items from this collection.
      * The collection will be empty after this method returns.
      */
+
+    @Override
+    public String toString(){
+        String output = "[";
+        for(int i=0; i < size-1; i++){
+            output = output + data[i].toString() +", ";
+        }
+        output = output + data[size-1].toString() +"]";
+        return output;
+    }
     @Override
     public void clear() {
 
@@ -165,7 +175,8 @@ public class ArrayList<ItemType> implements List<ItemType>{
      */
     @Override
     public boolean containsAll(Collection<? extends ItemType> otherCollection) {
-        return false;
+        //fail fast (fail loud)
+        throw new UnsupportedOperationException("containsAll method is not supported in this implementation");
     }
 
     /**
@@ -175,7 +186,8 @@ public class ArrayList<ItemType> implements List<ItemType>{
      */
     @Override
     public void addAll(Collection<? extends ItemType> otherCollection) {
-
+        //fail fast (fail loud)
+        throw new UnsupportedOperationException("addAll method is not supported in this implementation");
     }
 
     /**
@@ -214,7 +226,10 @@ public class ArrayList<ItemType> implements List<ItemType>{
      */
     @Override
     public ItemType get(int index) {
-        return null;
+        if(index >= size){
+            throw new IndexOutOfBoundsException("index is out of bounds");
+        }
+        return data[index];
     }
 
     /**
@@ -230,7 +245,10 @@ public class ArrayList<ItemType> implements List<ItemType>{
      */
     @Override
     public void set(int index, ItemType item) {
-
+        if(index >= size){
+            throw new IndexOutOfBoundsException("index is out of bounds");
+        }
+        data[index] = item;
     }
 
     /**
