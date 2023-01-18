@@ -1,6 +1,8 @@
 import edu.greenriver.sdev333.ArrayList;
 import edu.greenriver.sdev333.List;
 
+import java.util.Iterator;
+
 public class Main {
     public static void main(String[] args) {
 
@@ -18,6 +20,17 @@ public class Main {
         System.out.println("Size after many added: "+friends.size());
         System.out.println(friends);
 
+        System.out.print(System.lineSeparator());
+        Iterator<String> itr = friends.iterator();
+        while(itr.hasNext()){
+            String name = itr.next();
+            System.out.print(name+" ");
+        }
+
+        System.out.print(System.lineSeparator());
+        for(String name : friends){
+            System.out.print(name+ " ");
+        }
 
     }
 }
