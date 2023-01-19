@@ -413,7 +413,7 @@ public class ArrayList<ItemType> implements List<ItemType>{
          */
         @Override
         public boolean hasNext() {
-            return false;
+            return currentPosition < size();
         }
 
         /**
@@ -428,7 +428,7 @@ public class ArrayList<ItemType> implements List<ItemType>{
          */
         @Override
         public ItemType next() {
-            return null;
+            return get(currentPosition++);
         }
 
         /**
@@ -459,7 +459,9 @@ public class ArrayList<ItemType> implements List<ItemType>{
          */
         @Override
         public ItemType previous() {
-            return null;
+            ItemType returnThis = get(currentPosition -1);
+            currentPosition--;
+            return returnThis;
         }
 
         /**
@@ -473,7 +475,7 @@ public class ArrayList<ItemType> implements List<ItemType>{
          */
         @Override
         public int nextIndex() {
-            return 0;
+            return currentPosition;
         }
 
         /**
@@ -487,7 +489,7 @@ public class ArrayList<ItemType> implements List<ItemType>{
          */
         @Override
         public int previousIndex() {
-            return 0;
+            return currentPosition - 1;
         }
 
         /**
