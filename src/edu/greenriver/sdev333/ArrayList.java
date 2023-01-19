@@ -221,16 +221,15 @@ public class ArrayList<ItemType> implements List<ItemType> {
     @Override
     public void retainAll(Collection<? extends ItemType> otherCollection) {
         Iterator<ItemType> itr = (Iterator<ItemType>)otherCollection.iterator();
+        Collection<ItemType> collection = new ArrayList<ItemType>();
         while (itr.hasNext()) {
-
-
             ItemType itemToCheck = itr.next();
             if (contains(itemToCheck)) {
-                this.remove(itemToCheck);
+                collection.add(itemToCheck);
             }
-
         }
-
+        clear();
+        addAll(collection);
     }
 
     /**

@@ -45,15 +45,21 @@ public class Main {
         friends.removeAll(friends2);
         System.out.println("size is now " +friends.size());
         System.out.println(friends2.size());
+        System.out.println(friends2.contains("Tina"));
+        friends.retainAll(friends2);
+        System.out.println("size is now " +friends.size());
+
         Iterator<String> itrs = friends2.iterator();
         while (itrs.hasNext()) {
             String name = itrs.next();
             System.out.println(name);
         }
-       //for (String name : friends) {
-        //    System.out.println(name);
-        //}
 
+
+
+       for (String name : friends) {
+            System.out.println(name);
+        }
 
 
 
