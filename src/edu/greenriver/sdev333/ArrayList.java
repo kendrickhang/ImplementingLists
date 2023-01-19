@@ -2,6 +2,7 @@ package edu.greenriver.sdev333;
 
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.Objects;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
@@ -15,9 +16,39 @@ public class ArrayList<ItemType> implements List<ItemType>{
     // size is different than lenth of the array
     private int size;
 
+    //Constructor
     public ArrayList() {
         this.data = (ItemType[]) new Object[10];
         this.size = 0;
+    }
+
+    //Constructor
+    public ArrayList(int capacity) {
+        this.data = (ItemType[]) new Object[capacity];
+        this.size = 0;
+    }
+
+
+    /**  returns hashcode for this object by hashing toString with Objects.hash
+     *
+     * @return int hashcode
+     */
+    public int hashcode(){
+       return Objects.hash(this.toString());
+    }
+
+    @Override
+    public boolean equals(Object other){
+        return (other instanceof ArrayList<?>) && ((ArrayList<?>) other).hashcode() == hashcode();
+    }
+
+
+    private void trimArray(){
+        ItemType[] tempArray = (ItemType[]) new Object[size];
+        for(int i = 0; i < size; i++){
+            tempArray[i] = data[i];
+        }
+        data = tempArray;
     }
 
     /**
@@ -37,7 +68,7 @@ public class ArrayList<ItemType> implements List<ItemType>{
      */
     @Override
     public boolean isEmpty() {
-        return false;
+        return size == 0;
     }
 
     /**
@@ -50,7 +81,8 @@ public class ArrayList<ItemType> implements List<ItemType>{
      */
     @Override
     public boolean contains(ItemType item) {
-        return false;
+        int index = indexOf(item);
+        return isValidIndex(index);
     }
 
     /**
@@ -63,52 +95,6 @@ public class ArrayList<ItemType> implements List<ItemType>{
         return new MyCustomIterator();
     }
 
-    /**
-     * Performs the given action for each element of the {@code Iterable}
-     * until all elements have been processed or the action throws an
-     * exception.  Actions are performed in the order of iteration, if that
-     * order is specified.  Exceptions thrown by the action are relayed to the
-     * caller.
-     * <p>
-     * The behavior of this method is unspecified if the action performs
-     * side-effects that modify the underlying source of elements, unless an
-     * overriding class has specified a concurrent modification policy.
-     *
-     * @param action The action to be performed for each element
-     * @throws NullPointerException if the specified action is null
-     * @implSpec <p>The default implementation behaves as if:
-     * <pre>{@code
-     *     for (T t : this)
-     *         action.accept(t);
-     * }</pre>
-     * @since 1.8
-     */
-    @Override
-    public void forEach(Consumer<? super ItemType> action) {
-        List.super.forEach(action);
-    }
-
-    /**
-     * Creates a {@link Spliterator} over the elements described by this
-     * {@code Iterable}.
-     *
-     * @return a {@code Spliterator} over the elements described by this
-     * {@code Iterable}.
-     * @implSpec The default implementation creates an
-     * <em><a href="../util/Spliterator.html#binding">early-binding</a></em>
-     * spliterator from the iterable's {@code Iterator}.  The spliterator
-     * inherits the <em>fail-fast</em> properties of the iterable's iterator.
-     * @implNote The default implementation should usually be overridden.  The
-     * spliterator returned by the default implementation has poor splitting
-     * capabilities, is unsized, and does not report any spliterator
-     * characteristics. Implementing classes can nearly always provide a
-     * better implementation.
-     * @since 1.8
-     */
-    @Override
-    public Spliterator<ItemType> spliterator() {
-        return List.super.spliterator();
-    }
 
     /**
      * Adds the specified item to the collection.
@@ -119,18 +105,29 @@ public class ArrayList<ItemType> implements List<ItemType>{
      */
     @Override
     public void add(ItemType item) {
-        if(size == data.length){
-            //resize up : double array size
-            ItemType[] temp = (ItemType[]) new Object[size * 2];
-            for(int i=0; i < this.size; i++){
-                temp[i] = this.data[i];
-            }
-            this.data = temp;
-            temp = null;  //optional : gone as soon as method closes anyway
+        if(!hasRoom()){
+            expand();
         }
         data[size] = item;
         size++;
 
+    }
+
+    private boolean hasRoom(){
+        return size != data.length;
+    }
+
+    private void expand(){
+        //resize up : double array size
+        ItemType[] temp = (ItemType[]) new Object[size * 2];
+        for(int i=0; i < this.size; i++){
+            temp[i] = this.data[i];
+        }
+        this.data = temp;
+    }
+
+    private boolean isValidIndex(int index){
+        return index >= 0 && index < size && size !=0;
     }
 
     /**
@@ -143,7 +140,16 @@ public class ArrayList<ItemType> implements List<ItemType>{
      */
     @Override
     public void remove(ItemType item) {
-
+        int tempSize = 0;
+        ItemType[] tempData = (ItemType[]) new Object[size];
+        for(int i =0; i < size; i++){
+            if(!item.equals(data[i])){
+                tempData[tempSize] = data[i];
+                tempSize++;
+            }
+        }
+        data = tempData;
+        size = tempSize;
     }
 
     /**
@@ -162,7 +168,8 @@ public class ArrayList<ItemType> implements List<ItemType>{
     }
     @Override
     public void clear() {
-
+        this.data = (ItemType[]) new Object[10];
+        this.size = 0;
     }
 
     /**
@@ -176,7 +183,16 @@ public class ArrayList<ItemType> implements List<ItemType>{
     @Override
     public boolean containsAll(Collection<? extends ItemType> otherCollection) {
         //fail fast (fail loud)
-        throw new UnsupportedOperationException("containsAll method is not supported in this implementation");
+        //throw new UnsupportedOperationException("containsAll method is not supported in this implementation");
+
+        Iterator<ItemType> itr = (Iterator<ItemType>)otherCollection.iterator();
+        while(itr.hasNext()){
+            ItemType itemToCheck = itr.next();
+            if(!contains(itemToCheck)){
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -187,7 +203,10 @@ public class ArrayList<ItemType> implements List<ItemType>{
     @Override
     public void addAll(Collection<? extends ItemType> otherCollection) {
         //fail fast (fail loud)
-        throw new UnsupportedOperationException("addAll method is not supported in this implementation");
+        //throw new UnsupportedOperationException("addAll method is not supported in this implementation");
+        for(ItemType other : otherCollection){
+            add(other);
+        }
     }
 
     /**
@@ -200,7 +219,8 @@ public class ArrayList<ItemType> implements List<ItemType>{
      */
     @Override
     public void removeAll(Collection<? extends ItemType> otherCollection) {
-
+        //fail fast (fail loud)
+        throw new UnsupportedOperationException("addAll method is not supported in this implementation");
     }
 
     /**
@@ -213,7 +233,8 @@ public class ArrayList<ItemType> implements List<ItemType>{
      */
     @Override
     public void retainAll(Collection<? extends ItemType> otherCollection) {
-
+        //fail fast (fail loud)
+        throw new UnsupportedOperationException("addAll method is not supported in this implementation");
     }
 
     /**
@@ -226,7 +247,7 @@ public class ArrayList<ItemType> implements List<ItemType>{
      */
     @Override
     public ItemType get(int index) {
-        if(index >= size){
+        if(!isValidIndex(index)){
             throw new IndexOutOfBoundsException("index is out of bounds");
         }
         return data[index];
@@ -245,7 +266,7 @@ public class ArrayList<ItemType> implements List<ItemType>{
      */
     @Override
     public void set(int index, ItemType item) {
-        if(index >= size){
+        if(!isValidIndex(index)){
             throw new IndexOutOfBoundsException("index is out of bounds");
         }
         data[index] = item;
@@ -265,8 +286,14 @@ public class ArrayList<ItemType> implements List<ItemType>{
      */
     @Override
     public void add(int index, ItemType item) {
-        data[size] = item;
-        size++;
+        if(index > size || index < 0){
+            throw new IndexOutOfBoundsException("index is out of bounds");
+        }
+        if(!hasRoom()){expand();}
+        for(int i = size; i>index; i--){
+            data[i] = data[i-1];
+        }
+        data[index] = item;
     }
 
     /**
@@ -279,7 +306,12 @@ public class ArrayList<ItemType> implements List<ItemType>{
      */
     @Override
     public void remove(int index) {
-
+        if(!isValidIndex(index)){throw new IndexOutOfBoundsException("Index out of bounds");}
+        //shift values left to overwrite the item at index
+        for(int i = index; i<size-1; i++){
+            data[i] = data[i+1];
+        }
+        size--;
     }
 
     /**
@@ -294,7 +326,12 @@ public class ArrayList<ItemType> implements List<ItemType>{
      */
     @Override
     public int indexOf(ItemType item) {
-        return 0;
+        for(int i = 0; i < size; i++){
+            if(item.equals(data[i])){
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**
@@ -309,7 +346,12 @@ public class ArrayList<ItemType> implements List<ItemType>{
      */
     @Override
     public int lastIndexOf(ItemType item) {
-        return 0;
+        for(int i = size -1; i >= 0; i--){
+            if(item.equals(data[i])){
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**
@@ -321,7 +363,7 @@ public class ArrayList<ItemType> implements List<ItemType>{
      */
     @Override
     public ListIterator<ItemType> listIterator() {
-        return null;
+        return new MyCustomListIterator();
     }
 
     private class MyCustomIterator implements Iterator<ItemType>{

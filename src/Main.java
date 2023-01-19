@@ -10,6 +10,7 @@ public class Main {
 
         List<String> friends = new ArrayList<String>();
         System.out.println("Initial size is: "+friends.size());
+        System.out.println("List is empty: " + friends.isEmpty());
 
         friends.add("Ehren");
         System.out.println("Size after added one: "+friends.size());
@@ -18,6 +19,11 @@ public class Main {
             friends.add("Friend"+i);
         }
         System.out.println("Size after many added: "+friends.size());
+
+        System.out.println(friends.contains("Friend1"));
+        System.out.println(friends.contains("Friendx"));
+
+
         System.out.println(friends);
 
         System.out.print(System.lineSeparator());
