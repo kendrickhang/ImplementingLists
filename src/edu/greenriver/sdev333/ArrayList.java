@@ -15,7 +15,7 @@ public class ArrayList<ItemType> implements List<ItemType> {
     // size is DIFFERENT than length
     private int size;
 
-
+    // construction
     public ArrayList() {
         size = 0;
         data = (ItemType[]) new Object[10];
@@ -179,7 +179,15 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public void addAll(Collection<? extends ItemType> otherCollection) {
-        throw new UnsupportedOperationException("Not gonna do it!");
+        Iterator<ItemType> itr = (Iterator<ItemType>)otherCollection.iterator();
+        while (itr.hasNext()) {
+
+
+            //ItemType itemToCheck = itr.next();
+
+            Collection.class.cast(itr.next());
+        }
+
     }
 
     /**
@@ -192,7 +200,7 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public void removeAll(Collection<? extends ItemType> otherCollection) {
-
+        throw new UnsupportedOperationException("Not gonna do it!");
     }
 
     /**
@@ -205,7 +213,7 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public void retainAll(Collection<? extends ItemType> otherCollection) {
-
+        throw new UnsupportedOperationException("Not gonna do it!");
     }
 
     /**
@@ -321,6 +329,11 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public int lastIndexOf(ItemType item) {
+        for (int i = size; i > 0; i--) {
+            if (item.equals(data[i])) {
+                return i;
+            }
+        }
         return 0;
     }
 

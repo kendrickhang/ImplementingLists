@@ -22,8 +22,9 @@ public class Main {
         friends.add("Dorothy");
         friends.add("Sophia");
         friends.add(2, "Wednesday");
+        friends.add("Tina");
         System.out.println("size is now " + friends.size());
-
+        System.out.println(friends.lastIndexOf("Tina"));
         //for (int i = 0; i < friends.size(); i++) {
         //    System.out.println(friends.get(i));
         //}
@@ -36,9 +37,9 @@ public class Main {
         }
 
 
-        for (String name : friends) {
-            System.out.println(name);
-        }
+       //for (String name : friends) {
+        //    System.out.println(name);
+        //}
 
 
 
