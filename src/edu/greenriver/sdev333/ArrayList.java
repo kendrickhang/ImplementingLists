@@ -185,7 +185,7 @@ public class ArrayList<ItemType> implements List<ItemType> {
 
             //ItemType itemToCheck = itr.next();
 
-            Collection.class.cast(itr.next());
+           add(itr.next());
         }
 
     }
@@ -200,7 +200,14 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public void removeAll(Collection<? extends ItemType> otherCollection) {
-        throw new UnsupportedOperationException("Not gonna do it!");
+        Iterator<ItemType> itr = (Iterator<ItemType>)otherCollection.iterator();
+        while (itr.hasNext()) {
+
+
+            //ItemType itemToCheck = itr.next();
+
+            remove(itr.next());
+        }
     }
 
     /**
@@ -213,7 +220,17 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public void retainAll(Collection<? extends ItemType> otherCollection) {
-        throw new UnsupportedOperationException("Not gonna do it!");
+        Iterator<ItemType> itr = (Iterator<ItemType>)otherCollection.iterator();
+        while (itr.hasNext()) {
+
+
+            ItemType itemToCheck = itr.next();
+            if (contains(itemToCheck)) {
+                this.remove(itemToCheck);
+            }
+
+        }
+
     }
 
     /**
