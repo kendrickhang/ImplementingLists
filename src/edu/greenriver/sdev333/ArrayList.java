@@ -397,34 +397,38 @@ public class ArrayList<ItemType> implements List<ItemType> {
 
         @Override
         public boolean hasNext() {
-            return false;
+            return currentPosition < size();
         }
 
         @Override
         public ItemType next() {
-            return null;
+            ItemType result = get(currentPosition);
+            currentPosition++;
+            return result;
         }
 
         @Override
         public boolean hasPrevious() {
             // hasNext checked currentPosition with size
             // hasPrevious check currentPosition against 0
-            return false;
+            return currentPosition > 0;
         }
 
         @Override
         public ItemType previous() {
-            return null;
+            ItemType result = get(currentPosition);
+            currentPosition--;
+            return result;
         }
 
         @Override
         public int nextIndex() {
-            return 0;
+            return currentPosition+1;
         }
 
         @Override
         public int previousIndex() {
-            return 0;
+            return currentPosition -1;
         }
 
         @Override
