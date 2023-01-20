@@ -181,7 +181,7 @@ public class ArrayList<ItemType> implements List<ItemType> {
     public void addAll(Collection<? extends ItemType> otherCollection) {
         Iterator<ItemType> itr = (Iterator<ItemType>)otherCollection.iterator();
         while (itr.hasNext()) {
-
+            checkSize();
 
             //ItemType itemToCheck = itr.next();
 
@@ -242,7 +242,7 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public ItemType get(int index) {
-        if (index >= size) {
+        if (index >= size||index<0) {
             throw new IndexOutOfBoundsException("index is beyond size");
         }
 
@@ -262,7 +262,7 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public void set(int index, ItemType item) {
-        if (index >= size) {
+        if (index >= size||index<0) {
             throw new IndexOutOfBoundsException("index is beyond size");
         }
 
@@ -303,6 +303,9 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public void remove(int index) {
+        if (index >= size||index<0) {
+            throw new IndexOutOfBoundsException("index is beyond size");
+        }
         // shift values left to overwrite the item at index
         for (int i = index; i < size - 1; i++) {
             data[i] = data[i + 1];
@@ -362,7 +365,7 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public ListIterator<ItemType> listIterator() {
-        return null;
+        return new SecondCustomIterator();
     }
 
 
@@ -390,9 +393,10 @@ public class ArrayList<ItemType> implements List<ItemType> {
     private class SecondCustomIterator implements ListIterator<ItemType> {
         // fancier Iterator - lets us go forwards and backwards
         private int currentPosition;
-
+        private int lastPosition;
         public SecondCustomIterator() {
             currentPosition = 0;
+            lastPosition=-1;
         }
 
         @Override
