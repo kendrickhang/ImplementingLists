@@ -1,6 +1,7 @@
 package edu.greenriver.sdev333;
 
 import java.util.Iterator;
+import java.util.ListIterator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -162,5 +163,43 @@ class ArrayListTest {
 
     @org.junit.jupiter.api.Test
     void listIterator() {
+        testListOne.add("one");
+        testListOne.add("bar");
+        testListOne.add("foo");
+        testListOne.add("more");
+        testListOne.add("stuff");
+
+        ListIterator itr = testListOne.listIterator();
+        assertEquals("one", itr.next());
+        assertEquals("bar", itr.next());
+        assertEquals(true, itr.hasNext());
+        assertEquals("foo", itr.next());
+        assertEquals("foo", itr.previous());
+        assertEquals("bar", itr.previous());
+        assertEquals(true, itr.hasPrevious());
+        assertEquals("one", itr.previous());
+        assertEquals(false, itr.hasPrevious());
+        assertEquals("one", itr.next());
+        assertEquals(true, itr.hasNext());
+        assertEquals("bar", itr.next());
+        assertEquals("foo", itr.next());
+        assertEquals("more", itr.next());
+        assertEquals("stuff", itr.next());
+        assertEquals(false, itr.hasNext());
+        assertEquals("stuff", itr.previous());
+        assertEquals(4, itr.nextIndex());
+        assertEquals(3, itr.previousIndex());
+        assertEquals("stuff", itr.next());
+        itr.remove();
+        assertEquals("more", itr.previous());
+        itr.set("less");
+        assertEquals("less", itr.next());
+        assertEquals(false, itr.hasNext());
+        itr.add("time");
+        assertEquals(false, itr.hasNext());
+        assertEquals("time", itr.previous());
+        assertEquals("foo", itr.previous());
+
+
     }
 }

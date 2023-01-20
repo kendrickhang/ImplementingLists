@@ -1,9 +1,6 @@
 package edu.greenriver.sdev333;
 
-import java.util.Iterator;
-import java.util.ListIterator;
-import java.util.Objects;
-import java.util.Spliterator;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class ArrayList<ItemType> implements List<ItemType>{
@@ -398,8 +395,10 @@ public class ArrayList<ItemType> implements List<ItemType>{
 
     private class MyCustomListIterator implements ListIterator<ItemType>{
         private int currentPosition;
+        private int lastIndex;
         public MyCustomListIterator(){
             currentPosition = 0;
+            lastIndex = -1;
         }
 
         /**
@@ -428,6 +427,7 @@ public class ArrayList<ItemType> implements List<ItemType>{
          */
         @Override
         public ItemType next() {
+            lastIndex = currentPosition;
             return get(currentPosition++);
         }
 
@@ -459,6 +459,10 @@ public class ArrayList<ItemType> implements List<ItemType>{
          */
         @Override
         public ItemType previous() {
+            if(currentPosition - 1 < 0){
+                throw new NoSuchElementException("You are at the beginning of the list");
+            }
+            lastIndex = currentPosition - 1;
             ItemType returnThis = get(currentPosition -1);
             currentPosition--;
             return returnThis;
@@ -508,7 +512,15 @@ public class ArrayList<ItemType> implements List<ItemType>{
          */
         @Override
         public void remove() {
-
+            if(lastIndex == -1){
+                throw new IllegalStateException("You can only call remove() once after next() or previous() and not after add()");
+            }
+            for(int i = lastIndex; i<size-1; i++){
+                data[i] = data[i+1];
+            }
+            size--;
+            lastIndex = -1;
+            currentPosition--;
         }
 
         /**
@@ -518,7 +530,7 @@ public class ArrayList<ItemType> implements List<ItemType>{
          * #add} have been called after the last call to {@code next} or
          * {@code previous}.
          *
-         * @param itemType the element with which to replace the last element returned by
+         * @param item the element with which to replace the last element returned by
          *                 {@code next} or {@code previous}
          * @throws UnsupportedOperationException if the {@code set} operation
          *                                       is not supported by this list iterator
@@ -532,8 +544,11 @@ public class ArrayList<ItemType> implements List<ItemType>{
          *                                       {@code next} or {@code previous}
          */
         @Override
-        public void set(ItemType itemType) {
-
+        public void set(ItemType item) {
+            if(lastIndex == -1){
+                throw new IllegalStateException("You cannot call set() after remove() or add(), and you can only after next() or previous()");
+            }
+            data[lastIndex] = item;
         }
 
         /**
@@ -548,7 +563,7 @@ public class ArrayList<ItemType> implements List<ItemType>{
          * (This call increases by one the value that would be returned by a
          * call to {@code nextIndex} or {@code previousIndex}.)
          *
-         * @param itemType the element to insert
+         * @param item the element to insert
          * @throws UnsupportedOperationException if the {@code add} method is
          *                                       not supported by this list iterator
          * @throws ClassCastException            if the class of the specified element
@@ -557,8 +572,13 @@ public class ArrayList<ItemType> implements List<ItemType>{
          *                                       prevents it from being added to this list
          */
         @Override
-        public void add(ItemType itemType) {
-
+        public void add(ItemType item) {
+            if(!hasRoom()){expand();}
+            for(int i = size; i>lastIndex; i--){
+                data[i] = data[i-1];
+            }
+            data[lastIndex] = item;
+            lastIndex = -1;
         }
     }
 }
