@@ -1,7 +1,6 @@
 package edu.greenriver.sdev333;
 
 import java.util.*;
-import java.util.function.Consumer;
 
 public class ArrayList<ItemType> implements List<ItemType>{
 
@@ -30,13 +29,14 @@ public class ArrayList<ItemType> implements List<ItemType>{
      *
      * @return int hashcode
      */
-    public int hashcode(){
+    @Override
+    public int hashCode(){
        return Objects.hash(this.toString());
     }
 
     @Override
     public boolean equals(Object other){
-        return (other instanceof ArrayList<?>) && ((ArrayList<?>) other).hashcode() == hashcode();
+        return (other instanceof ArrayList<?>) && ((ArrayList<?>) other).hashCode() == hashCode();
     }
 
 
@@ -298,17 +298,19 @@ public class ArrayList<ItemType> implements List<ItemType>{
      * Shifts any subsequent items to the left.
      *
      * @param index the index of the item to be removed
+     * @return
      * @throws IndexOutOfBoundsException if the index is out of range
      *                                   (index < 0 || index >= size())
      */
     @Override
-    public void remove(int index) {
+    public ItemType remove(int index) {
         if(!isValidIndex(index)){throw new IndexOutOfBoundsException("Index out of bounds");}
         //shift values left to overwrite the item at index
         for(int i = index; i<size-1; i++){
             data[i] = data[i+1];
         }
         size--;
+        return null;
     }
 
     /**

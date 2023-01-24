@@ -106,10 +106,11 @@ public interface List<ItemType> extends Collection<ItemType> {
      * Shifts any subsequent items to the left.
      *
      * @param index the index of the item to be removed
+     * @return
      * @throws IndexOutOfBoundsException if the index is out of range
-     *         (index < 0 || index >= size())
+     *                                   (index < 0 || index >= size())
      */
-    void remove(int index);
+    ItemType remove(int index);
 
     /**
      * Returns the index of the first occurrence of the specified item
