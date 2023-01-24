@@ -6,7 +6,7 @@ public class Main {
 
         System.out.println("Hello world!");
 
-        List<String> friends = new ArrayList<String>();
+        List<String> friends = new ArrayList<>();
 
         System.out.println("initial size is " + friends.size());
 
