@@ -1,5 +1,6 @@
 package edu.greenriver.sdev333;
 
+import javax.naming.OperationNotSupportedException;
 import java.util.Iterator;
 import java.util.ListIterator;
 
@@ -55,7 +56,12 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
      */
     @Override
     public boolean contains(ItemType item) {
-        return false;
+        // assume indexOf is working...
+        int position = indexOf(item);
+        if (position == -1) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -65,7 +71,7 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
      */
     @Override
     public Iterator<ItemType> iterator() {
-        return null;
+        return new OurCustomIterator();
     }
 
     /**
@@ -77,7 +83,13 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
      */
     @Override
     public void add(ItemType item) {
-
+        if (item == null) {
+            throw new NullPointerException();
+        }
+        // the index at the end of the list is size - 1
+        // example: if list is size 5, last index is 4
+        // so we can just insert at the last index
+        add(size() - 1, item);
     }
 
     /**
@@ -90,6 +102,35 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
      */
     @Override
     public void remove(ItemType item) {
+        if (item == null) {
+            throw new NullPointerException();
+        }
+
+        // alternative - easier to write, but less efficient
+        /*
+        int position = indexOf(item);
+        if (position != -1) {
+            remove(position);
+        }
+        */
+
+        if (head.data == item) {
+            head = head.next;
+            size--;
+        }
+        else {
+            Node current = head;
+            Node previous;
+            while (current.next != null) {
+                previous = current;
+                current = current.next;
+
+                if (current.data.equals(item)) {
+                    previous.next = current.next;
+                    size--;
+                }
+            }
+        }
 
     }
 
@@ -123,7 +164,7 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
      */
     @Override
     public void addAll(Collection<? extends ItemType> otherCollection) {
-
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -162,7 +203,21 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
      */
     @Override
     public ItemType get(int index) {
-        return null;
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        Node current = head;
+        int counter = 0;
+        while (counter != index) {
+            current = current.next;
+            counter++;
+        }
+        return current.data;
+
+        /*for (int i = 0; i < index; i++) {
+            current = current.next;
+        }*/
     }
 
     /**
@@ -195,7 +250,39 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
      */
     @Override
     public void add(int index, ItemType item) {
+        checkIndex(index);
 
+        if (index == 0) {
+            // if someone wants to add at the beginning, I need to change the head
+            Node theNewOne = new Node();
+            theNewOne.data = item;
+            theNewOne.next = head;
+
+            head = theNewOne;
+        }
+        else {
+            Node current = head;
+
+            // stop one before the position I want to insert at
+            for (int i = 0; i < index - 1; i++) {
+                current = current.next;
+            }
+
+            // when I get here, current is pointing the node *BEFORE* the node at the index
+            Node theNewOne = new Node();
+            theNewOne.data = item;
+            theNewOne.next = current.next;
+
+            current.next = theNewOne;
+        }
+
+        size++;
+    }
+
+    private void checkIndex(int index) {
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException();
+        }
     }
 
     /**
@@ -208,6 +295,22 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
      */
     @Override
     public void remove(int index) {
+        checkIndex(index);
+
+        if (index == 0) {
+            head = head.next;
+        }
+        else {
+            Node current = head;
+            for (int i = 0; i < index - 1; i++) {
+                current = current.next;
+            }
+            // when I get here - current is pointing to the node BEFORE the one at index
+
+            current.next = current.next.next;
+        }
+
+        size--;
 
     }
 
@@ -223,7 +326,18 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
      */
     @Override
     public int indexOf(ItemType item) {
-        return 0;
+        int counter = 0;
+        Node current = head;
+        while (current != null) {
+            if (current.data.equals(item)) {
+                return counter;
+            }
+            counter++;
+            current = current.next;
+        }
+
+        // if we get here, it's not found
+        return -1;
     }
 
     /**
@@ -250,6 +364,92 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
      */
     @Override
     public ListIterator<ItemType> listIterator() {
-        return null;
+        return new OurEnhancedIterator();
     }
+
+    private class OurCustomIterator implements Iterator<ItemType> {
+
+        // field
+        private Node currentPosition;
+
+        public OurCustomIterator() {
+            currentPosition = head;
+        }
+
+        @Override
+        public boolean hasNext() {
+            // see if I'm on the last node: if (current.next == null)
+            // see if I made it past the last node: if (current == null)
+            if (currentPosition != null) {
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public ItemType next() {
+            ItemType result = currentPosition.data;
+            currentPosition = currentPosition.next;
+            return result;
+        }
+    }
+
+    private class OurEnhancedIterator implements ListIterator<ItemType> {
+
+        private Node currentPosition;
+        private int currentIndex;
+
+        public OurEnhancedIterator() {
+            currentPosition = head;
+            currentIndex = 0;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return currentPosition != null;
+        }
+
+        @Override
+        public ItemType next() {
+            ItemType result = currentPosition.data;
+            currentPosition = currentPosition.next;
+            return result;
+        }
+
+        @Override
+        public boolean hasPrevious() {
+            return false;
+        }
+
+        @Override
+        public ItemType previous() {
+            return null;
+        }
+
+        @Override
+        public int nextIndex() {
+            return 0;
+        }
+
+        @Override
+        public int previousIndex() {
+            return 0;
+        }
+
+        @Override
+        public void remove() {
+
+        }
+
+        @Override
+        public void set(ItemType itemType) {
+
+        }
+
+        @Override
+        public void add(ItemType itemType) {
+
+        }
+    }
+
 }
