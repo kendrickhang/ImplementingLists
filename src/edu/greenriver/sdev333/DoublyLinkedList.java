@@ -3,6 +3,8 @@ package edu.greenriver.sdev333;
 import javax.swing.text.html.HTMLDocument;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 
 public class DoublyLinkedList<ItemType> implements List<ItemType> {
 
@@ -17,6 +19,31 @@ public class DoublyLinkedList<ItemType> implements List<ItemType> {
         this.head = null;
         this.tail = null;
         this.size = 0;
+    }
+
+    /**  returns hashcode for this object by hashing toString with Objects.hash
+     *
+     * @return int hashcode
+     */
+    @Override
+    public int hashCode(){
+        return Objects.hash(this.toString());
+    }
+
+    @Override
+    public boolean equals(Object other){
+        return (other instanceof DoublyLinkedList<?>) && ((DoublyLinkedList<?>) other).hashCode() == hashCode();
+    }
+
+    @Override
+    public String toString(){
+        String output = "[";
+        Iterator<ItemType> itr = this.iterator();
+        for(int i=0; i < size-1; i++){
+            output = output + itr.next().toString() +", ";
+        }
+        output = output + itr.next().toString() +"]";
+        return output;
     }
 
     /**
@@ -50,7 +77,7 @@ public class DoublyLinkedList<ItemType> implements List<ItemType> {
      */
     @Override
     public Iterator<ItemType> iterator() {
-        return new myTwoWayIterator();
+        return new myIterator();
     }
 
     /**
@@ -273,7 +300,7 @@ public class DoublyLinkedList<ItemType> implements List<ItemType> {
      */
     @Override
     public int lastIndexOf(ItemType item) {
-        Node current = this.head;
+        Node current = this.tail;
         for(int i = this.size - 1; i >= 0; i--){
             if(current.data.equals(item))return i;
             current = current.prev;
@@ -286,7 +313,7 @@ public class DoublyLinkedList<ItemType> implements List<ItemType> {
      */
     @Override
     public ListIterator<ItemType> listIterator() {
-        return null;
+        return new myListIterator();
     }
 
 
@@ -304,10 +331,10 @@ public class DoublyLinkedList<ItemType> implements List<ItemType> {
         }
     }
 
-    private class myTwoWayIterator implements Iterator<ItemType> {
+    private class myIterator implements Iterator<ItemType> {
         private Node currentNode;
         private int currentPosition;
-        public myTwoWayIterator(){
+        public myIterator(){
             currentNode = head;
             currentPosition = 0;
         }
@@ -317,7 +344,7 @@ public class DoublyLinkedList<ItemType> implements List<ItemType> {
          */
         @Override
         public boolean hasNext() {
-            return currentNode.next != null;
+            return currentNode != null;
         }
 
         /**
@@ -349,7 +376,7 @@ public class DoublyLinkedList<ItemType> implements List<ItemType> {
          */
         @Override
         public boolean hasNext() {
-            return currentNode.next != null;
+            return currentNode != null;
         }
 
         /**
@@ -357,6 +384,7 @@ public class DoublyLinkedList<ItemType> implements List<ItemType> {
          */
         @Override
         public ItemType next() {
+            if(!hasNext()){throw new NoSuchElementException("You should check hasNext() before calling next()");}
             ItemType data = currentNode.data;
             currentNode = currentNode.next;
             lastIndex = currentPosition;
@@ -365,17 +393,27 @@ public class DoublyLinkedList<ItemType> implements List<ItemType> {
         }
 
         public boolean hasPrevious(){
-            return currentNode.prev != null;
+            return currentPosition != 0;
         }
 
         public ItemType previous(){
-            currentNode = currentNode.prev;
-            currentPosition--;
-            lastIndex = currentPosition;
-            return currentNode.data;
+            if(!hasPrevious()){
+                throw new NoSuchElementException("Node at beginning of list has no previous.  Check hasPrevious() before calling previous()");
+            }
+            if(currentPosition == size){
+                currentNode = tail;
+                currentPosition--;
+                lastIndex = currentPosition;
+                return currentNode.data;
+            } else{
+                currentNode = currentNode.prev;
+                currentPosition--;
+                lastIndex = currentPosition;
+                return currentNode.data;
+            }
         }
 
-        /**
+        /**  The index-position of the element that you will get when you call next()
          * @return
          */
         @Override
@@ -396,7 +434,18 @@ public class DoublyLinkedList<ItemType> implements List<ItemType> {
          */
         @Override
         public void remove() {
-            DoublyLinkedList.this.remove(lastIndex);
+            if(lastIndex == currentPosition) {
+                int remove = lastIndex;
+                ItemType ignoreThis = previous();
+                DoublyLinkedList.this.remove(remove);
+            }else if(lastIndex == size - 1){
+                int remove = lastIndex;
+                ItemType ignoreThis = previous();
+                //ItemType ignoreThisToo = previous();
+                DoublyLinkedList.this.remove(remove);
+            }else{
+                DoublyLinkedList.this.remove(lastIndex);
+            }
         }
 
         /**
@@ -413,7 +462,17 @@ public class DoublyLinkedList<ItemType> implements List<ItemType> {
          */
         @Override
         public void add(ItemType item) {
-            DoublyLinkedList.this.add(lastIndex, item);
+            if(lastIndex == size - 1) {
+                DoublyLinkedList.this.add(item);
+                currentNode = tail.next;
+                currentPosition = size;
+            }else if(size == 0){
+                DoublyLinkedList.this.add(item);
+                currentNode = head;
+                currentPosition = 0;
+            }else{
+                DoublyLinkedList.this.add(lastIndex, item);
+            }
         }
     }
 
