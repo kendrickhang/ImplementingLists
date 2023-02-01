@@ -3,22 +3,34 @@ package edu.greenriver.sdev333;
 import java.util.Iterator;
 import java.util.ListIterator;
 
+/**
+ * This class implements the List interface in the Java collections
+ * package.
+ *
+ * @author Jack Ruiz
+ *
+ * @param <ItemType>
+ */
 public class ArrayList<ItemType> implements List<ItemType> {
 
-    // WE NEED FIELDS!!
+    // WE NEED FIELDS
 
-    // one plain old Java array
+    // one plain Java array
     private ItemType[] data;
 
     // one int to keep track of size
-    // size is the # of spots that are used in the data array
-    // size is DIFFERENT than length
+    // size is the number of spots used in the data array
+    // size is different than length
     private int size;
-
 
     public ArrayList() {
         size = 0;
         data = (ItemType[]) new Object[10];
+    }
+
+    public ArrayList(int initial) {
+        size = 0;
+        data = (ItemType[]) new Object[initial];
     }
 
 
@@ -39,12 +51,7 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public boolean isEmpty() {
-        if (size == 0) {
-            return true;
-        }
-        return false;
-
-        // alternate way to write it: return size == 0;
+        return size == 0;
     }
 
     /**
@@ -57,12 +64,11 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public boolean contains(ItemType item) {
-        int i = indexOf(item);
-        if (i != -1) {
-            return true;
+        if (item == null) {
+            throw new NullPointerException();
         }
 
-        return false;
+        return (indexOf(item) != -1);
     }
 
     /**
@@ -75,26 +81,6 @@ public class ArrayList<ItemType> implements List<ItemType> {
         return new OurCustomIterator();
     }
 
-    private void checkSize() {
-        if (size == data.length) {
-            // resize up (double up the array size)
-
-            // Step 1 - create a new larger array
-            ItemType[] temp = (ItemType[]) new Object[size * 2];
-
-            // Step 2 - copy items from data to temp
-            for (int i = 0; i < size; i++) {
-                temp[i] = data[i];
-            }
-
-            // Step 3 - repoint/refererence data to point to new array
-            data = temp;
-
-            // Optional:
-            temp = null;
-        } // end of if (need to resize)
-    }
-
     /**
      * Adds the specified item to the collection.
      *
@@ -104,12 +90,34 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public void add(ItemType item) {
+        data[size++] = item;
 
+        // all of the above works until I run out of room when size becomes
+        // the same as length, I'm out of room
         checkSize();
 
-        data[size] = item;
-        size++;
-    } // end of method
+    }
+
+    /*
+     * check for size increase requirement, and double-array size
+     * if necessary
+     */
+    private void checkSize() {
+        if (size == data.length) {
+            // resize up ....
+
+            // Step 1 - create a temp array 2x size
+            ItemType[] temp = (ItemType[]) new Object[data.length * 2];;
+
+            // Step 2 - copy arrayElements from data to temp
+            for (int i = 0; i < size; i++) {
+                temp[i] = data[i];
+            }
+
+            // Step 3 - point 'data' at temp array
+            data = temp;
+        }
+    }
 
     /**
      * Removes a single instance of the specified item from this collection,
@@ -121,13 +129,14 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public void remove(ItemType item) {
+        if (item == null) {
+            throw new NullPointerException();
+        }
+        // IN CLASS
         int i = indexOf(item);
         if (i != -1) {
-            // if it's found, use the other remove method to do the work
             remove(i);
         }
-
-
     }
 
     /**
@@ -136,7 +145,7 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public void clear() {
-        // lazy deletion
+        // data = (ItemType[]) new Object[data.length];
         size = 0;
     }
 
@@ -151,25 +160,12 @@ public class ArrayList<ItemType> implements List<ItemType> {
     @Override
     public boolean containsAll(Collection<? extends ItemType> otherCollection) {
 
-        Iterator<ItemType> itr = (Iterator<ItemType>)otherCollection.iterator();
-        while (itr.hasNext()) {
-            ItemType itemToCheck = itr.next();
-            if (!contains(itemToCheck)) {
+        for (ItemType i: otherCollection) {
+            if (!contains(i))
                 return false;
-            }
         }
 
         return true;
-
-
-        //for (ItemType itemToCheck : otherCollection) {
-        //    if (!contains(itemToCheck)) {
-        //        return false;
-        //    }
-        //}
-
-        //return true;
-
     }
 
     /**
@@ -179,7 +175,11 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public void addAll(Collection<? extends ItemType> otherCollection) {
-        throw new UnsupportedOperationException("Not gonna do it!");
+        if (otherCollection != null) {
+            for (ItemType i: otherCollection) {
+                this.add(i);
+            }
+        }
     }
 
     /**
@@ -192,7 +192,9 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public void removeAll(Collection<? extends ItemType> otherCollection) {
-
+        for (ItemType i: otherCollection) {
+            remove(i);
+        }
     }
 
     /**
@@ -205,7 +207,18 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public void retainAll(Collection<? extends ItemType> otherCollection) {
+        // Create a value-copy of current list
+        List<ItemType> listCopy = new ArrayList<>();
+        for (ItemType i: this) {
+            listCopy.add(i);
+        }
 
+        // remove items in otherCollection from listCopy
+        // this leaves us with an inverted view of the list
+        listCopy.removeAll(otherCollection);
+
+        // now remove listCopy items from originalList
+        this.removeAll(listCopy);
     }
 
     /**
@@ -218,11 +231,12 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public ItemType get(int index) {
-        if (index >= size) {
+        if (validIndex(index)) {
+            return data[index];
+        }
+        else {
             throw new IndexOutOfBoundsException("index is beyond size");
         }
-
-        return data[index];
     }
 
     /**
@@ -238,11 +252,11 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public void set(int index, ItemType item) {
-        if (index >= size) {
+        if (validIndex(index)) {
+            data[index] = item;
+        } else {
             throw new IndexOutOfBoundsException("index is beyond size");
         }
-
-        data[index] = item;
     }
 
     /**
@@ -259,14 +273,17 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public void add(int index, ItemType item) {
-        checkSize();
+        if (validIndex(index)) {
+            // Add the last item to the end of list, and shift everything behind it to the right
+            this.add(data[size-1]);
 
-        for (int i = size; i >= index + 1; i--) {
-            data[i] = data[i - 1];
+            for (int i = size-2; i > index; i--) {
+                data[i] = data[i-1];
+            }
+
+            // finally, set the 'added' item to the specified location
+            set(index, item);
         }
-
-        data[index] = item;
-        size++;
     }
 
     /**
@@ -279,10 +296,14 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public void remove(int index) {
-        // shift values left to overwrite the item at index
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException();
+        }
+
         for (int i = index; i < size - 1; i++) {
             data[i] = data[i + 1];
         }
+
         size--;
     }
 
@@ -298,14 +319,12 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public int indexOf(ItemType item) {
-
+        // DID AT HOME
         for (int i = 0; i < size; i++) {
-            if (item.equals(data[i])) {
+            if (data[i].equals(item))
                 return i;
-            }
         }
 
-        // if we got here, it wasn't in the array
         return -1;
     }
 
@@ -321,7 +340,12 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public int lastIndexOf(ItemType item) {
-        return 0;
+        for (int i = size-1; i >= 0; i--) {
+            if (data[i].equals(item))
+                return i;
+        }
+
+        return -1;
     }
 
     /**
@@ -333,11 +357,60 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public ListIterator<ItemType> listIterator() {
-        return null;
+        return new SecondCustomIterator();
     }
 
+    /**
+     * Per the Oracle javadocs, "... two lists are defined to be equal
+     * if they contain the same elements in the same order."
+     * @param obj object to be compared for equality with this collection
+     * @return
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj != null && obj.getClass() == this.getClass()) {
+
+            ArrayList<ItemType> temp = (ArrayList<ItemType>) obj;
+
+            if (this.size() != temp.size())
+                return false;
+            for (int i = 0; i < this.size(); i++) {
+                if (this.get(i) != temp.get(i))
+                    return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * This method tests a given index value to determine if it
+     * is valid.  Any index out of range, i.e. smaller than 0
+     * or larger than size, is invalid and does not point to
+     * a valid element.
+     * @param index
+     * @return
+     */
+    private boolean validIndex(int index) {
+        return ((index < this.size) && (index >= 0));
+    }
+
+    /**
+     * This method resizes the array, doubling its previous value, to
+     * make way for new elements.  Called as required by various methods.
+     */
+    private void resize() {
+        ItemType[] temp = (ItemType[]) new Object[data.length * 2];;
+
+        for (int i = 0; i < size; i++) {
+            temp[i] = data[i];
+        }
+
+        data = temp;
+    }
 
     private class OurCustomIterator implements Iterator<ItemType> {
+
         private int currentPosition;
 
         public OurCustomIterator() {
@@ -355,12 +428,17 @@ public class ArrayList<ItemType> implements List<ItemType> {
             currentPosition++;
             return result;
         }
+
     }
 
-
+    /**
+     * used this as reference
+     * https://docs.oracle.com/javase/8/docs/api/java/util/ListIterator.html#previousIndex--
+     */
     private class SecondCustomIterator implements ListIterator<ItemType> {
-        // fancier Iterator - lets us go forwards and backwards
+
         private int currentPosition;
+        private int lastIndexReturned;
 
         public SecondCustomIterator() {
             currentPosition = 0;
@@ -368,44 +446,57 @@ public class ArrayList<ItemType> implements List<ItemType> {
 
         @Override
         public boolean hasNext() {
-            return false;
+            return currentPosition < size();
         }
 
         @Override
         public ItemType next() {
-            return null;
+            ItemType result = get(currentPosition);
+            lastIndexReturned = currentPosition;
+            currentPosition++;
+            return result;
         }
 
         @Override
         public boolean hasPrevious() {
-            // hasNext checked currentPosition with size
-            // hasPrevious check currentPosition against 0
-            return false;
+            return currentPosition > 0;
         }
 
         @Override
         public ItemType previous() {
-            return null;
+            if (currentPosition > 0) {
+                ItemType result = get(currentPosition - 1);
+                lastIndexReturned = currentPosition - 1;
+                return result;
+            } else {
+                throw new IndexOutOfBoundsException();
+            }
         }
 
         @Override
         public int nextIndex() {
-            return 0;
+            if (currentPosition == size() - 1)
+                return currentPosition;
+            else
+                return currentPosition + 1;
         }
 
         @Override
         public int previousIndex() {
-            return 0;
+            if (currentPosition == 0)
+                return -1;
+            else
+                return currentPosition - 1;
         }
 
         @Override
         public void remove() {
-
+            ArrayList.this.remove(lastIndexReturned);
         }
 
         @Override
         public void set(ItemType itemType) {
-
+            ArrayList.this.set(lastIndexReturned, itemType);
         }
 
         @Override
