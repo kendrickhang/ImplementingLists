@@ -7,7 +7,7 @@ public class Main {
 
         System.out.println("Hello world!");
 
-        List<String> friends = new SinglyLinkedList<String>();
+        List<String> friends = new RecursiveLinkedList<String>();
 
         System.out.println("initial size is " + friends.size());
 
@@ -30,6 +30,7 @@ public class Main {
         //}
 
         // above: import java.util.Iterator;
+        /*
         Iterator<String> itr = friends.iterator();
         while (itr.hasNext()) {
             String name = itr.next();
@@ -52,6 +53,7 @@ public class Main {
             System.out.println(name);
         }
 
+         */
 
 
 

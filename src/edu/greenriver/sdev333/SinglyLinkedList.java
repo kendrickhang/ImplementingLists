@@ -154,7 +154,25 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
      */
     @Override
     public boolean containsAll(Collection<? extends ItemType> otherCollection) {
-        return false;
+        for (ItemType item : otherCollection) {
+            if (!this.contains(item)) {
+                return false;
+            }
+        }
+        return true;
+
+        /*
+        Iterator<ItemType> itr = (Iterator<ItemType>)otherCollection.iterator();
+        while (itr.hasNext()) {
+            ItemType item = itr.next();
+            if (!contains(item)) {
+                return false;
+            }
+        }
+
+        return true;
+        */
+
     }
 
     /**
@@ -272,7 +290,6 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
             Node theNewOne = new Node();
             theNewOne.data = item;
             theNewOne.next = head;
-
             head = theNewOne;
         }
         else {
