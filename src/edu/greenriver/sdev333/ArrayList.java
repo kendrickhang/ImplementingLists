@@ -368,12 +368,18 @@ public class ArrayList<ItemType> implements List<ItemType> {
      */
     @Override
     public boolean equals(Object obj) {
+        // Must first ensure these two objects are of the same type ...
         if (obj != null && obj.getClass() == this.getClass()) {
 
+            // create temporary ArrayList from obj
             ArrayList<ItemType> temp = (ArrayList<ItemType>) obj;
 
+            // confirm lists are of equal size, if not, return false
             if (this.size() != temp.size())
                 return false;
+
+            // cycle through individual items, testing one by one
+            // return false if one of pair is not equal
             for (int i = 0; i < this.size(); i++) {
                 if (this.get(i) != temp.get(i))
                     return false;
@@ -400,17 +406,21 @@ public class ArrayList<ItemType> implements List<ItemType> {
      * make way for new elements.  Called as required by various methods.
      */
     private void resize() {
+        // Step 1 - create a temp array 2x size
         ItemType[] temp = (ItemType[]) new Object[data.length * 2];;
 
+        // Step 2 - copy arrayElements from data to temp
         for (int i = 0; i < size; i++) {
             temp[i] = data[i];
         }
 
+        // Step 3 - point 'data' at temp array
         data = temp;
     }
 
     private class OurCustomIterator implements Iterator<ItemType> {
 
+        // fields
         private int currentPosition;
 
         public OurCustomIterator() {
@@ -432,11 +442,14 @@ public class ArrayList<ItemType> implements List<ItemType> {
     }
 
     /**
-     * used this as reference
+     * Implemented methods using primarily same logic as CustomerIterator
+     * above, though the extra methods were completed using documentation found
+     * for the JDK at
      * https://docs.oracle.com/javase/8/docs/api/java/util/ListIterator.html#previousIndex--
      */
     private class SecondCustomIterator implements ListIterator<ItemType> {
 
+        // fancier Iterator that lets us go forwards and backwards
         private int currentPosition;
         private int lastIndexReturned;
 
@@ -506,3 +519,17 @@ public class ArrayList<ItemType> implements List<ItemType> {
     }
 
 } // end of class ArrayList
+Footer
+© 2023 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Docs
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About

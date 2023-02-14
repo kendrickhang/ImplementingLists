@@ -179,12 +179,20 @@ public class DoublyLinkedList<ItemType> implements List<ItemType>{
     }
 
     /*
+     * could have been left inside getElementN, but broken into a separate method for use
+     * by other methods if required
+     */
+    private void validateIndex(int index) {
+        if ((index >= size) || (index < 0))
+            throw new IndexOutOfBoundsException();
+    }
+
+    /*
      * Return element at index n (not the data in that element)
      */
     private Node getElementN(int index) {
 
-        if ((index >= size) || (index < 0))
-            throw new IndexOutOfBoundsException();
+        validateIndex(index);
 
         Node n = head;
         int i = -1;
@@ -278,6 +286,39 @@ public class DoublyLinkedList<ItemType> implements List<ItemType>{
         }
 
         ++size;
+    }
+
+    /**
+     * Compares the specified object (a collection) with this collection for equality.
+     *
+     * Equal only if the lists are the same size, and each node equals the matching
+     * node in the alternate list.
+     *
+     * @param obj object to be compared for equality with this collection
+     * @return true if the specified other object is equal to this collection
+     */
+    @Override
+    public boolean equals(Object obj) {
+        // https://docs.oracle.com/javase/7/docs/api/java/util/AbstractList.html#equals(java.lang.Object)
+        // object is not null, and it matches this class type
+        if (obj != null && obj.getClass() == this.getClass()) {
+
+            List list = (List) obj;
+
+            if (this.size != list.size())
+                return false;
+
+            ListIterator<ItemType> litA = this.listIterator();
+            ListIterator<ItemType> litB = list.listIterator();
+            while (litA.hasNext()) {
+                if (!litA.next().equals(litB.next()))
+                    return false;
+            }
+        } else {
+            return false;
+        }
+
+        return true;
     }
 
     /**
