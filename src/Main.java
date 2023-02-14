@@ -60,9 +60,26 @@ public class Main {
        for (String name : friends) {
             System.out.println(name);
         }
+        System.out.println();
+        System.out.println();
 
-
-
-
+        List<String> linked1 = new SinglyLinkedList<>();
+        linked1.add("Tina1");
+        linked1.add("Josh1");
+        linked1.add("Susan1");
+        linked1.add("Tyler1");
+        linked1.add("Usman1");
+        linked1.add("Dee1");
+        linked1.add("Rose1");
+        linked1.add("Blanche1");
+        linked1.add("Dorothy1");
+        linked1.add(3,"wadwe");
+        int haha=linked1.indexOf("wadwe");
+        System.out.println(haha);
+        Iterator<String> itrss = linked1.iterator();
+        while (itrss.hasNext()) {
+            String name = itrss.next();
+            System.out.println(name);
+        }
     }
 }
