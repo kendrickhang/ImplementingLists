@@ -1,29 +1,32 @@
 package edu.greenriver.sdev333;
 
-import javax.naming.OperationNotSupportedException;
 import java.util.Iterator;
 import java.util.ListIterator;
 
 public class SinglyLinkedList<ItemType> implements List<ItemType> {
 
-    // FIELDS - what does a linked list actually have in it??
+    //Fields
     private Node head;
     private int size;
 
-    // helper/inner classes
-    private class Node {
+    //helper/inner classes
+    private class Node{
+
         ItemType data;
         Node next;
     }
 
-    /**
-     * Constructor
-     */
-    public SinglyLinkedList() {
-        // an empty list has no nodes,
-        // which means it has no head, so set head to null
-        head = null;
+
+    //constructor
+    public SinglyLinkedList(){
         size = 0;
+        head = null;
+    }
+    //helper method
+    private void checkIndex(int index){
+        if(index<0 || index>= size){
+            throw new IndexOutOfBoundsException();
+        }
     }
 
     /**
@@ -43,7 +46,9 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
      */
     @Override
     public boolean isEmpty() {
-        return size == 0;
+
+        return size() == 0||head==null;
+
     }
 
     /**
@@ -54,6 +59,7 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
      * @throws NullPointerException if the specified item is null
      *                              and this collection does not permit null items
      */
+
     @Override
     public boolean contains(ItemType item) {
         // assume indexOf is working...
@@ -62,6 +68,7 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
             return false;
         }
         return true;
+
     }
 
     /**
@@ -83,13 +90,22 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
      */
     @Override
     public void add(ItemType item) {
-        if (item == null) {
-            throw new NullPointerException();
+
+        Node newNode = new Node();
+        newNode.data = item;
+        newNode.next = null;
+        if(head == null){
+            head = newNode;
+        }else {
+            Node current = head;
+            while (current.next != null) {
+                current = current.next;
+            }
+            //current is pointing to last node
+            current.next = newNode;
         }
-        // the index at the end of the list is size - 1
-        // example: if list is size 5, last index is 4
-        // so we can just insert at the last index
-        add(size() - 1, item);
+        size++;
+
     }
 
     /**
@@ -102,35 +118,33 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
      */
     @Override
     public void remove(ItemType item) {
-        if (item == null) {
+
+        if(item == null){
             throw new NullPointerException();
         }
 
-        // alternative - easier to write, but less efficient
         /*
+        alternative slower method with less code:
         int position = indexOf(item);
-        if (position != -1) {
-            remove(position);
+        if(position != -1){
+        remove(position);
         }
-        */
+         */
 
-        if (head.data == item) {
+        if(head.data == item){
             head = head.next;
-            size--;
-        }
-        else {
+        }else{
             Node current = head;
             Node previous;
-            while (current.next != null) {
+            while (current.next != null){
                 previous = current;
                 current = current.next;
 
-                if (current.data.equals(item)) {
+                if(current.data.equals(item)){
                     previous.next = current.next;
-                    size--;
                 }
             }
-        }
+        }size -=1;
 
     }
 
@@ -140,8 +154,10 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
      */
     @Override
     public void clear() {
-        head = null;
+
         size = 0;
+        head = null;
+
     }
 
     /**
@@ -154,25 +170,14 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
      */
     @Override
     public boolean containsAll(Collection<? extends ItemType> otherCollection) {
-        for (ItemType item : otherCollection) {
+
+        for(ItemType item: otherCollection) {
+
             if (!this.contains(item)) {
                 return false;
             }
         }
         return true;
-
-        /*
-        Iterator<ItemType> itr = (Iterator<ItemType>)otherCollection.iterator();
-        while (itr.hasNext()) {
-            ItemType item = itr.next();
-            if (!contains(item)) {
-                return false;
-            }
-        }
-
-        return true;
-        */
-
     }
 
     /**
@@ -181,6 +186,8 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
      * @param otherCollection collection containing items to be added to this collection
      */
     @Override
+
+
     public void addAll(Collection<? extends ItemType> otherCollection) {
         // walk through the other collection
         //  for-each loop
@@ -198,6 +205,7 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
             add(currentItem);
         }
         */
+
     }
 
     /**
@@ -210,6 +218,12 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
      */
     @Override
     public void removeAll(Collection<? extends ItemType> otherCollection) {
+
+        Iterator<ItemType> itr = (Iterator<ItemType>)otherCollection.iterator();
+        while(itr.hasNext()) {
+            ItemType currentItem = itr.next();
+            remove(currentItem);
+        }
 
     }
 
@@ -236,21 +250,18 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
      */
     @Override
     public ItemType get(int index) {
-        if (index < 0 || index >= size) {
-            throw new IndexOutOfBoundsException();
-        }
 
+        checkIndex(index);
         Node current = head;
         int counter = 0;
-        while (counter != index) {
+        while(counter != index){
+
             current = current.next;
             counter++;
         }
         return current.data;
 
-        /*for (int i = 0; i < index; i++) {
-            current = current.next;
-        }*/
+
     }
 
     /**
@@ -266,6 +277,15 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
      */
     @Override
     public void set(int index, ItemType item) {
+
+        checkIndex(index);
+        Node current = head;
+        int counter = 0;
+        while(counter!= index){
+            current = current.next;
+            counter++;
+        }
+        current.data = item;
 
     }
 
@@ -284,13 +304,13 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
     @Override
     public void add(int index, ItemType item) {
         checkIndex(index);
-
+        //if the head is null
         if (index == 0) {
-            // if someone wants to add at the beginning, I need to change the head
             Node theNewOne = new Node();
             theNewOne.data = item;
             theNewOne.next = head;
             head = theNewOne;
+
         }
         else {
             Node current = head;
@@ -314,6 +334,7 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
     private void checkIndex(int index) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException();
+
         }
     }
 
@@ -329,7 +350,7 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
     public void remove(int index) {
         checkIndex(index);
 
-        if (index == 0) {
+        if(index == 0){
             head = head.next;
         }
         else {
@@ -337,11 +358,9 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
             for (int i = 0; i < index - 1; i++) {
                 current = current.next;
             }
-            // when I get here - current is pointing to the node BEFORE the one at index
 
             current.next = current.next.next;
         }
-
         size--;
 
     }
@@ -362,13 +381,12 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
         Node current = head;
         while (current != null) {
             if (current.data.equals(item)) {
+
                 return counter;
             }
             counter++;
             current = current.next;
         }
-
-        // if we get here, it's not found
         return -1;
     }
 
@@ -396,6 +414,7 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
      */
     @Override
     public ListIterator<ItemType> listIterator() {
+
         return new OurEnhancedIterator();
     }
 
@@ -413,6 +432,7 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
             // see if I'm on the last node: if (current.next == null)
             // see if I made it past the last node: if (current == null)
             if (currentPosition != null) {
+
                 return true;
             }
             return false;
@@ -425,6 +445,7 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
             return result;
         }
     }
+
 
     private class OurEnhancedIterator implements ListIterator<ItemType> {
 
@@ -485,3 +506,4 @@ public class SinglyLinkedList<ItemType> implements List<ItemType> {
     }
 
 }
+
